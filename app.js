@@ -52,7 +52,50 @@ app.post("/signup", async (req, res) => {
     }
 });
 
+// usersignin
+// api for  user sign-in
 
+app.post("/signin", async (req, res) => {
+    const { username, password } = req.body;
+
+    // Input validation
+    if (!username || !password) {
+        return res.status(400).json({ "status": "error", "message": "Username and password are required" });
+    }
+
+    try {
+        // Find the user by username
+        const user = await userModel.findOne({ username });
+
+        if (!user) {
+            return res.status(404).json({ "status": "error", "message": "User does not exist" });
+        }
+
+        // Compare the provided password with the hashed password in the database
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            return res.status(401).json({ "status": "error", "message": "Incorrect password" });
+        }
+
+
+        // Generate JWT token if the password is correct
+        jwt.sign(
+            { username: user.username, userId: user._id },
+            "supplyco-app",
+            { expiresIn: "1d" }, // Token expiration time of 1 day
+            (error, token) => {
+                if (error) {
+                    return res.status(500).json({ "status": "error", "message": "Unable to create token" });
+                }
+                res.json({ "status": "success", "userId": user._id, "token": token });
+            }
+        );
+    } catch (error) {
+        console.error("Error during sign-in:", error);
+        res.status(500).json({ "status": "error", "message": "Server error during sign-in" });
+    }
+});
 
 
 
