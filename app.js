@@ -52,8 +52,9 @@ app.post("/signup", async (req, res) => {
     }
 });
 
+// usersignin
 // api for  user sign-in
-//******************************************** */
+
 app.post("/signin", async (req, res) => {
     const { username, password } = req.body;
 
@@ -76,6 +77,7 @@ app.post("/signin", async (req, res) => {
         if (!isMatch) {
             return res.status(401).json({ "status": "error", "message": "Incorrect password" });
         }
+
 
         // Generate JWT token if the password is correct
         jwt.sign(
